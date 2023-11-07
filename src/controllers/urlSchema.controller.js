@@ -1,5 +1,5 @@
 const { UrlSchema } = require('../../models');
-const NotFoundError = require('../errors/not-found-error');
+const NotFoundError = require('../errors/not-found-error')
 
 
 const createShortUrl = async ( req, res) => {

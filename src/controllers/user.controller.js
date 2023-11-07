@@ -16,7 +16,7 @@ const fetchUser = async(req, res) => {
 }
 
 const fetchUsers = async(req, res) => {
-	const users = await User.findAll({include: UrlSchema});
+	const users = await User.findAll({include: [UrlSchema]});
 
 	return res.status(200).json({users});
 }

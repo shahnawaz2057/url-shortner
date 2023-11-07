@@ -1,12 +1,10 @@
 const app = require('./app')
 const { sequelize } = require('../models');
-const swaggerDocs = require('./swagger/swagger');
 
 const start = async () => {
   await sequelize.sync({ alter: true });
   app.listen(8080, () => {
     console.log("app listening in port 8080");
-    swaggerDocs(app, '8080');
   })
 }
 

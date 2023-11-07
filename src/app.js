@@ -6,10 +6,7 @@ const errorHandler = require('./middlewares/error-handler');
 const userRouter = require('./routes/user.route');
 const urlSchemaRouter = require('./routes/urlSchema.route');
 const NotFoundError = require('./errors/not-found-error');
-// const redirectRouter = require('./routes/redirect.route');
-
-// const swaggerUi = require('swagger-ui-express');
-// const swaggerDocument = require('../swagger/swagger.json');
+const swaggerDocs = require('./swagger/swagger');
 
 const app = express();
 
@@ -21,14 +18,8 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-});
+swaggerDocs(app);
 
-// add route for swagger document API
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// app.use('/', redirectRouter);
 app.use('/api/users', userRouter);
 app.use('/api/urls', urlSchemaRouter);
 
