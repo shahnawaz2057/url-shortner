@@ -126,6 +126,31 @@ const router = express.Router();
  *                 $ref: '#/components/schemas/UrlSchema'
  */
 
+/**
+ * @swagger
+ * /api/urls/{id}:
+ *   delete:
+ *     summary: Delete url by short name
+ *     tags:
+ *      - urls
+ *     parameters:
+ *       - in: path
+ *         name: shortUrlName
+ *         required: true
+ *         description: short url name to be deleted.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ */
+
 router.route('/')
 .get(fetchUrls)
 .post(createShortUrl)
