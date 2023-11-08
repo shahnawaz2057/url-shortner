@@ -1,5 +1,13 @@
-const express = require('express');
-const { createShortUrl, fetchUrls, modifyShortUrl, reDirectToOrignalUrl, deleteShortUrl } = require('../controllers/urlSchema.controller')
+const express = require("express");
+const { body } = require("express-validator");
+
+const {
+  createShortUrl,
+  fetchUrls,
+  modifyShortUrl,
+  reDirectToOrignalUrl,
+  deleteShortUrl,
+} = require("../controllers/urlSchema.controller");
 
 const router = express.Router();
 
@@ -151,13 +159,28 @@ const router = express.Router();
  *                 $ref: '#/components/schemas/User'
  */
 
-router.route('/')
-.get(fetchUrls)
-.post(createShortUrl)
+router
+  .route("/")
+  .get(fetchUrls)
+  .post(
+    [
+      body("orignalUrl").notEmpty().isURL(),
+      body("shortUrlName").notEmpty().isString(),
+      body("userId").notEmpty().isNumeric(),
+    ],
+    createShortUrl
+  );
 
-router.route('/:shortUrlName')
-.get(reDirectToOrignalUrl)
-.put(modifyShortUrl)
-.delete(deleteShortUrl);
+router
+  .route("/:id")
+  .get(reDirectToOrignalUrl)
+  .put(
+    [
+      body("userId").notEmpty().isNumeric(),
+      body("shortUrl").optional().isString(),
+    ],
+    modifyShortUrl
+  )
+  .delete([body("userId").notEmpty().isNumeric()], deleteShortUrl);
 
 module.exports = router;
