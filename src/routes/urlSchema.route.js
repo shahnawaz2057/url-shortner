@@ -165,6 +165,7 @@ router
     [
       query("page").optional().isInt().toInt(),
       query("perPage").optional().isInt().toInt(),
+      query("searchUrl").optional().isString(),
     ],
     fetchUrls
   )

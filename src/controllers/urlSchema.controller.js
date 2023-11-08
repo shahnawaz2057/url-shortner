@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const { StatusCodes } = require("http-status-codes");
+const { Op } = require("sequelize");
 
 const { UrlSchema } = require("../../models");
 const BadRequest = require("../errors/bad-request");
@@ -40,19 +41,30 @@ const fetchUrls = async (req, res, next) => {
       throw new ValidationError("Validation failed!");
     }
 
-    const { page, perPage } = req.query;
+    const { page, perPage, searchUrl = "" } = req.query;
     const currentPage = page ? parseInt(page) : 1;
     const currentLimit = perPage ? parseInt(perPage) : 10;
     const offset = (currentPage - 1) * currentLimit;
 
+    const where = {
+      [Op.or]: [
+        {
+          orignalUrl: {
+            [Op.iLike]: `%${searchUrl}%`,
+          },
+        },
+        {
+          shortUrlName: {
+            [Op.iLike]: `%${searchUrl}%`,
+          },
+        },
+      ],
+    };
     const { count, rows } = await UrlSchema.findAndCountAll({
+      where,
       limit: currentLimit,
       offset: offset,
     });
-
-    if (count === 0 || rows.length === 0) {
-      throw new NotFoundError("No urls found!");
-    }
 
     res.status(StatusCodes.OK).json({
       data: rows,
