@@ -35,13 +35,30 @@ const createShortUrl = async (req, res, next) => {
 
 const fetchUrls = async (req, res, next) => {
   try {
-    let urls = await UrlSchema.findAll({ include: "User" });
-    if (!urls) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError("Validation failed!");
+    }
+
+    const { page, perPage } = req.query;
+    const currentPage = page ? parseInt(page) : 1;
+    const currentLimit = perPage ? parseInt(perPage) : 10;
+    const offset = (currentPage - 1) * currentLimit;
+
+    const { count, rows } = await UrlSchema.findAndCountAll({
+      limit: currentLimit,
+      offset: offset,
+    });
+
+    if (count === 0 || rows.length === 0) {
       throw new NotFoundError("No urls found!");
     }
 
     res.status(StatusCodes.OK).json({
-      data: urls,
+      data: rows,
+      totalCount: count,
+      totalPages: Math.ceil(count / currentLimit),
+      currentPage: currentPage,
     });
   } catch (err) {
     next(err);

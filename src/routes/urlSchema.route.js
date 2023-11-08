@@ -1,5 +1,5 @@
 const express = require("express");
-const { body } = require("express-validator");
+const { body, query } = require("express-validator");
 
 const {
   createShortUrl,
@@ -161,7 +161,13 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(fetchUrls)
+  .get(
+    [
+      query("page").optional().isInt().toInt(),
+      query("perPage").optional().isInt().toInt(),
+    ],
+    fetchUrls
+  )
   .post(
     [
       body("orignalUrl").notEmpty().isURL(),
