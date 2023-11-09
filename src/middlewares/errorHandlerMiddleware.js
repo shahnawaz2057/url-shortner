@@ -1,8 +1,9 @@
-const NotFoundError = require("../errors/not-found-error");
-const CustomError = require("../errors/custom-error");
 const { StatusCodes } = require("http-status-codes");
-const ValidationError = require("../errors/validation-error");
-const BadRequest = require("../errors/bad-request");
+
+const NotFoundError = require("../errors/notFoundError");
+const CustomError = require("../errors/customError");
+const ValidationError = require("../errors/validationError");
+const BadRequest = require("../errors/badRequestError");
 
 const errorHandler = (err, req, res, next) => {
   switch (err.constructor) {

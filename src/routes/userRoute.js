@@ -1,5 +1,12 @@
-const express = require('express');
-const { createUser, fetchUsers, fetchUser, updateUser, deleteUser } = require('../controllers/user.controller')
+const express = require("express");
+
+const {
+  createUser,
+  fetchUsers,
+  fetchUser,
+  updateUser,
+  deleteUser,
+} = require("../controllers/userController");
 
 const router = express.Router();
 
@@ -158,13 +165,8 @@ const router = express.Router();
  *                 $ref: '#/components/schemas/User'
  */
 
-router.route('/')
-.get(fetchUsers)
-.post(createUser);
+router.route("/").get(fetchUsers).post(createUser);
 
-router.route('/:id')
-.get(fetchUser)
-.put(updateUser)
-.delete(deleteUser);
+router.route("/:id").get(fetchUser).put(updateUser).delete(deleteUser);
 
 module.exports = router;

@@ -5,9 +5,9 @@ const {
   createShortUrl,
   fetchUrls,
   modifyShortUrl,
-  reDirectToOrignalUrl,
+  reDirectTooriginalUrl,
   deleteShortUrl,
-} = require("../controllers/urlSchema.controller");
+} = require("../controllers/urlController");
 
 const router = express.Router();
 
@@ -15,14 +15,14 @@ const router = express.Router();
  * @swagger
  * components:
  *   schemas:
- *     UrlSchema:
+ *     Url:
  *       type: object
  *       properties:
- *         orignalUrl:
+ *         originalUrl:
  *           type: string
  *           description: Long url.
  *           example: https://jnj.com/.....
- *         shortUrlName:
+ *         shortUrl:
  *           type: string
  *           description: Short url name.
  *           example: Branding
@@ -44,12 +44,12 @@ const router = express.Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/UrlSchema'
+ *                 $ref: '#/components/schemas/Url'
  */
 
 /**
  * @swagger
- * /api/urls/{shortUrlName}:
+ * /api/urls/{shortUrl}:
  *   get:
  *     summary: Get url by short name
  *     description: Retrieve url by short name
@@ -63,12 +63,12 @@ const router = express.Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/UrlSchema'
+ *                 $ref: '#/components/schemas/Url'
  */
 
 /**
  * @swagger
- * /api/urls/{shortUrlName}:
+ * /api/urls/{shortUrl}:
  *   put:
  *     summary: Modify url
  *     description: Modify url by short name and user Id
@@ -76,7 +76,7 @@ const router = express.Router();
  *      - urls
  *     parameters:
  *       - in: path
- *         name: shortUrlName
+ *         name: shortUrl
  *         required: true
  *         description: Name of the short url to be updated.
  *         schema:
@@ -100,7 +100,7 @@ const router = express.Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/UrlSchema'
+ *                 $ref: '#/components/schemas/Url'
  */
 
 /**
@@ -117,7 +117,7 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               orignalUrl:
+ *               originalUrl:
  *                 type: string
  *               shortUrl:
  *                 type: string
@@ -131,7 +131,7 @@ const router = express.Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/UrlSchema'
+ *                 $ref: '#/components/schemas/Url'
  */
 
 /**
@@ -143,7 +143,7 @@ const router = express.Router();
  *      - urls
  *     parameters:
  *       - in: path
- *         name: shortUrlName
+ *         name: shortUrl
  *         required: true
  *         description: short url name to be deleted.
  *         schema:
@@ -171,8 +171,8 @@ router
   )
   .post(
     [
-      body("orignalUrl").notEmpty().isURL(),
-      body("shortUrlName").notEmpty().isString(),
+      body("originalUrl").notEmpty().isURL(),
+      body("shortUrl").notEmpty().isString(),
       body("userId").notEmpty().isNumeric(),
     ],
     createShortUrl
@@ -180,7 +180,7 @@ router
 
 router
   .route("/:id")
-  .get(reDirectToOrignalUrl)
+  .get(reDirectTooriginalUrl)
   .put(
     [
       body("userId").notEmpty().isNumeric(),

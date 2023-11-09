@@ -1,5 +1,5 @@
-const app = require('./app')
-const { sequelize } = require('../models');
+const app = require("./app");
+const { sequelize } = require("./models");
 // const swaggerDocs = require('./swagger/swagger');
 
 const start = async () => {
@@ -7,8 +7,8 @@ const start = async () => {
   app.listen(8080, () => {
     console.log("app listening in port 8080");
     // swaggerDocs(app, '8080');
-  })
-}
+  });
+};
 
 start();
 
@@ -23,8 +23,6 @@ start();
 
   }) 
 }*/
-
-
 
 // try {
 //   await sequelize.authenticate();
