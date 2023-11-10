@@ -1,13 +1,13 @@
 const express = require("express");
-const { body, query } = require("express-validator");
+const { body, query, param } = require("express-validator");
 
 const {
   createShortUrl,
   fetchUrls,
   modifyShortUrl,
-  reDirectTooriginalUrl,
   deleteShortUrl,
 } = require("../controllers/urlController");
+const validate = require("../middlewares/validateMiddleware");
 
 const router = express.Router();
 
@@ -163,10 +163,11 @@ router
   .route("/")
   .get(
     [
-      query("page").optional().isInt().toInt(),
-      query("perPage").optional().isInt().toInt(),
+      query("page").optional().isInt(),
+      query("perPage").optional().isInt(),
       query("searchUrl").optional().isString(),
     ],
+    validate,
     fetchUrls
   )
   .post(
@@ -175,19 +176,21 @@ router
       body("shortUrl").notEmpty().isString(),
       body("userId").notEmpty().isNumeric(),
     ],
+    validate,
     createShortUrl
   );
 
 router
   .route("/:id")
-  .get(reDirectTooriginalUrl)
   .put(
     [
+      param("id").isInt(),
       body("userId").notEmpty().isNumeric(),
       body("shortUrl").optional().isString(),
     ],
+    validate,
     modifyShortUrl
   )
-  .delete([body("userId").notEmpty().isNumeric()], deleteShortUrl);
+  .delete([param("id").isInt().toInt()], validate, deleteShortUrl);
 
 module.exports = router;

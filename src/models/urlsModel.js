@@ -8,10 +8,11 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ User }) {
+    static associate({ UsersModel }) {
       // define association here
-      this.belongsTo(User, {
+      this.belongsTo(UsersModel, {
         foreignKey: { name: "userId", allowNull: false },
+        as: "creator",
       });
     }
   }
@@ -33,10 +34,6 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "shortUrl must not be empty" },
         },
       },
-      linksCreated: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-      },
       linksVisited: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
@@ -45,11 +42,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,
-      modelName: "Url",
-      tableName: "url",
+      modelName: "UrlsModel",
+      tableName: "urls",
     }
   );
   return Url;

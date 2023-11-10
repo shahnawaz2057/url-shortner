@@ -1,32 +1,25 @@
-const { validationResult } = require("express-validator");
 const { StatusCodes } = require("http-status-codes");
 const { Op } = require("sequelize");
 
-const { Url, User } = require("../models");
+const { UrlsModel } = require("../models");
 const BadRequest = require("../errors/badRequestError");
 const NotFoundError = require("../errors/notFoundError");
-const ValidationError = require("../errors/validationError");
 
 const createShortUrl = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      throw new ValidationError("Validation failed!");
-    }
-
     const { originalUrl, shortUrl, userId } = req.body;
-    let url = await Url.findOne({ where: { shortUrl, userId } });
+    let url = await UrlsModel.findOne({ where: { shortUrl } });
     if (url) {
-      throw new BadRequest("Short url with the same name already exist!");
+      throw new BadRequest("short url with the same name already exist!");
     }
-    const createdUrl = await Url.create({
+    const createdUrl = await UrlsModel.create({
       originalUrl,
       shortUrl,
       userId,
     });
 
     res.status(StatusCodes.CREATED).json({
-      message: "Shorten url created successfully!",
+      message: "shorten url created successfully!",
       data: createdUrl,
     });
   } catch (err) {
@@ -36,11 +29,6 @@ const createShortUrl = async (req, res, next) => {
 
 const fetchUrls = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      throw new ValidationError("Validation failed!");
-    }
-
     const { page, perPage, searchUrl = "" } = req.query;
     const currentPage = page ? parseInt(page) : 1;
     const currentLimit = perPage ? parseInt(perPage) : 10;
@@ -60,9 +48,9 @@ const fetchUrls = async (req, res, next) => {
         },
       ],
     };
-    const { count, rows } = await Url.findAndCountAll({
+    const { count, rows } = await UrlsModel.findAndCountAll({
       where,
-      include: [{ model: User, required: true }],
+      include: "creator",
       limit: currentLimit,
       offset: offset,
     });
@@ -80,23 +68,18 @@ const fetchUrls = async (req, res, next) => {
 
 const modifyShortUrl = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      throw new ValidationError("Validation failed!");
-    }
-
     const { id } = req.params;
     const { shortUrl, userId } = req.body;
-    const url = await Url.findOne({
+    const url = await UrlsModel.findOne({
       where: { id: parseInt(id), userId },
     });
     if (!url) {
-      throw new NotFoundError("No urls found!");
+      throw new NotFoundError("no urls found!");
     }
 
-    let existedUrl = await Url.findOne({ where: { shortUrl, userId } });
+    let existedUrl = await UrlsModel.findOne({ where: { shortUrl } });
     if (existedUrl) {
-      throw new BadRequest("Short url with the same name already exist!");
+      throw new BadRequest("short url with the same name already exist!");
     } else {
       if (shortUrl) {
         url.shortUrl = shortUrl;
@@ -105,7 +88,7 @@ const modifyShortUrl = async (req, res, next) => {
       await url.save();
 
       res.status(StatusCodes.OK).json({
-        message: "Shorten url updated successfully!",
+        message: "shorten url updated successfully!",
         data: url,
       });
     }
@@ -116,48 +99,20 @@ const modifyShortUrl = async (req, res, next) => {
 
 const deleteShortUrl = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      throw new ValidationError("Validation failed!");
-    }
-
     const { id } = req.params;
-    const { userId } = req.body;
-    const url = await Url.findOne({
-      where: { id: parseInt(id), userId },
-    });
-    if (!url) {
-      throw new NotFoundError("No url found!");
-    } else {
-      url.isDeleted = true;
-      await url.save();
-      res
-        .status(StatusCodes.OK)
-        .json({ message: "Shorten url deleted successfully" });
-    }
-  } catch (err) {
-    next(err);
-  }
-};
-
-const reDirectTooriginalUrl = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const url = await Url.findOne({
+    const url = await UrlsModel.findOne({
       where: { id: parseInt(id) },
     });
     if (!url) {
-      throw new NotFoundError("No url found!");
+      throw new NotFoundError("no url found!");
+    } else {
+      url.isDeleted = true;
+      url.deletedAt = new Date();
+      await url.save();
+      res
+        .status(StatusCodes.OK)
+        .json({ message: "shorten url deleted successfully" });
     }
-
-    await Url.increment("linksVisited", {
-      by: 1,
-      where: {
-        id: parseInt(id),
-      },
-    });
-
-    return res.redirect(url.originalUrl);
   } catch (err) {
     next(err);
   }
@@ -166,7 +121,6 @@ const reDirectTooriginalUrl = async (req, res, next) => {
 module.exports = {
   createShortUrl,
   fetchUrls,
-  reDirectTooriginalUrl,
   modifyShortUrl,
   deleteShortUrl,
 };

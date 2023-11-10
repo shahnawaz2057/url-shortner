@@ -8,19 +8,24 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Url }) {
+    static associate({ UrlsModel }) {
       // define association here
-      this.hasMany(Url, {
+      this.hasMany(UrlsModel, {
         foreignKey: { name: "userId", allowNull: false },
+        as: "urls",
       });
-    }
-
-    toJSON() {
-      return { ...this.get(), password: undefined };
     }
   }
   User.init(
     {
+      employeeId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "User must have a employeeId" },
+          notEmpty: { msg: "EmployeeId must not be empty" },
+        },
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -29,27 +34,26 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "Name must not be empty" },
         },
       },
-      email: {
+      designation: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          notNull: { msg: "User must have a email" },
-          notEmpty: { msg: "email must not be empty" },
-          isEmail: { msg: "Must be a valid email address" },
+          notNull: { msg: "User must have a designation" },
+          notEmpty: { msg: "Designation must not be empty" },
         },
       },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notNull: { msg: "User must have a password" },
-          notEmpty: { msg: "password must not be empty" },
-        },
+      isAdmin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
     },
     {
       sequelize,
-      modelName: "User",
+      modelName: "UsersModel",
       tableName: "users",
     }
   );

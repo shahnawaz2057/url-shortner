@@ -1,12 +1,13 @@
 const express = require("express");
+const { body, query, param } = require("express-validator");
 
 const {
   createUser,
   fetchUsers,
   fetchUser,
   updateUser,
-  deleteUser,
 } = require("../controllers/userController");
+const validate = require("../middlewares/validateMiddleware");
 
 const router = express.Router();
 
@@ -165,8 +166,38 @@ const router = express.Router();
  *                 $ref: '#/components/schemas/User'
  */
 
-router.route("/").get(fetchUsers).post(createUser);
+router
+  .route("/")
+  .get(
+    [
+      query("page").optional().isInt().toInt(),
+      query("perPage").optional().isInt().toInt(),
+      query("search").optional().isString(),
+    ],
+    validate,
+    fetchUsers
+  )
+  .post(
+    [
+      body("employeeId").isString().notEmpty(),
+      body("name").isString().notEmpty(),
+      body("designation").isString().notEmpty(),
+    ],
+    validate,
+    createUser
+  );
 
-router.route("/:id").get(fetchUser).put(updateUser).delete(deleteUser);
+router
+  .route("/:id")
+  .get([param("id").isInt().toInt()], validate, fetchUser)
+  .put(
+    [
+      param("id").isInt().toInt(),
+      body("isAdmin").optional().isBoolean().toBoolean(),
+      body("isActive").optional().isBoolean().toBoolean(),
+    ],
+    validate,
+    updateUser
+  );
 
 module.exports = router;
