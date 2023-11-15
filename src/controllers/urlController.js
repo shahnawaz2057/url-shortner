@@ -1,18 +1,18 @@
 const { StatusCodes } = require("http-status-codes");
 const { Op } = require("sequelize");
 
-const { UrlsModel } = require("../models");
+const { Urls } = require("../models");
 const BadRequest = require("../errors/badRequestError");
 const NotFoundError = require("../errors/notFoundError");
 
 const createShortUrl = async (req, res, next) => {
   try {
     const { originalUrl, shortUrl, userId } = req.body;
-    let url = await UrlsModel.findOne({ where: { shortUrl } });
+    let url = await Urls.findOne({ where: { shortUrl } });
     if (url) {
       throw new BadRequest("short url with the same name already exist!");
     }
-    const createdUrl = await UrlsModel.create({
+    const createdUrl = await Urls.create({
       originalUrl,
       shortUrl,
       userId,
@@ -27,30 +27,40 @@ const createShortUrl = async (req, res, next) => {
   }
 };
 
-const fetchUrls = async (req, res, next) => {
+const searchUrls = async (req, res, next) => {
   try {
-    const { page, perPage, searchUrl = "" } = req.query;
+    const { page, perPage, searchUrl } = req.query;
     const currentPage = page ? parseInt(page) : 1;
     const currentLimit = perPage ? parseInt(perPage) : 10;
     const offset = (currentPage - 1) * currentLimit;
+    const { userId } = req.body;
 
-    const where = {
-      [Op.or]: [
-        {
-          originalUrl: {
-            [Op.iLike]: `%${searchUrl}%`,
+    let where;
+    if(searchUrl && searchUrl != ""){
+     where = {
+        [Op.or]: [
+          {
+            originalUrl: {
+              [Op.iLike]: `%${searchUrl}%`,
+            },
           },
-        },
-        {
-          shortUrl: {
-            [Op.iLike]: `%${searchUrl}%`,
+          {
+            shortUrl: {
+              [Op.iLike]: `%${searchUrl}%`,
+            },
           },
-        },
-      ],
-    };
-    const { count, rows } = await UrlsModel.findAndCountAll({
+        ],
+      };
+    }
+    if(userId && userId != "") {
+      where = {...where, userId}
+    }
+    if(where === undefined) {
+      throw new BadRequest('bad request');
+    }
+    const { count, rows } = await Urls.findAndCountAll({
       where,
-      include: "creator",
+      // include: "creator",
       limit: currentLimit,
       offset: offset,
     });
@@ -70,14 +80,14 @@ const modifyShortUrl = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { shortUrl, userId } = req.body;
-    const url = await UrlsModel.findOne({
+    const url = await Urls.findOne({
       where: { id: parseInt(id), userId },
     });
     if (!url) {
       throw new NotFoundError("no urls found!");
     }
 
-    let existedUrl = await UrlsModel.findOne({ where: { shortUrl } });
+    let existedUrl = await Urls.findOne({ where: { shortUrl } });
     if (existedUrl) {
       throw new BadRequest("short url with the same name already exist!");
     } else {
@@ -100,7 +110,7 @@ const modifyShortUrl = async (req, res, next) => {
 const deleteShortUrl = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const url = await UrlsModel.findOne({
+    const url = await Urls.findOne({
       where: { id: parseInt(id) },
     });
     if (!url) {
@@ -120,7 +130,7 @@ const deleteShortUrl = async (req, res, next) => {
 
 module.exports = {
   createShortUrl,
-  fetchUrls,
   modifyShortUrl,
   deleteShortUrl,
+  searchUrls
 };

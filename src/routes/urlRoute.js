@@ -3,161 +3,81 @@ const { body, query, param } = require("express-validator");
 
 const {
   createShortUrl,
-  fetchUrls,
   modifyShortUrl,
   deleteShortUrl,
+  searchUrls
 } = require("../controllers/urlController");
 const validate = require("../middlewares/validateMiddleware");
 
 const router = express.Router();
 
 /**
- * @swagger
- * components:
- *   schemas:
- *     Url:
- *       type: object
- *       properties:
- *         originalUrl:
- *           type: string
- *           description: Long url.
- *           example: https://jnj.com/.....
- *         shortUrl:
- *           type: string
- *           description: Short url name.
- *           example: Branding
+ * A UrlSchema type
+ * @typedef {object} UrlSchema
+ * @property {string} originalUrl.required - The long url
+ * @property {string} shortUrl.required - The short url name
  */
 
 /**
- * @swagger
- * /api/urls:
- *   get:
- *     summary: List of urls
- *     description: Retrieve a list of urls.
- *     tags:
- *      - urls
- *     responses:
- *       200:
- *         description: ok.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Url'
+ * A CreateUrlSchema type
+ * @typedef {object} CreateUrlSchema
+ * @property {string} originalUrl.required - The long url
+ * @property {string} shortUrl.required - The short url name
+ * @property {number} userId.required - The user Id
  */
 
 /**
- * @swagger
- * /api/urls/{shortUrl}:
- *   get:
- *     summary: Get url by short name
- *     description: Retrieve url by short name
- *     tags:
- *      - urls
- *     responses:
- *       200:
- *         description: ok.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Url'
+ * A UpdateUrlSchema type
+ * @typedef {object} UpdateUrlSchema
+ * @property {string} shortUrl.required - The short url name
+ * @property {number} userId.required - The user Id
  */
 
 /**
- * @swagger
- * /api/urls/{shortUrl}:
- *   put:
- *     summary: Modify url
- *     description: Modify url by short name and user Id
- *     tags:
- *      - urls
- *     parameters:
- *       - in: path
- *         name: shortUrl
- *         required: true
- *         description: Name of the short url to be updated.
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               userId:
- *                 type: integer
- *               newName:
- *                 type: string
- *     responses:
- *       200:
- *         description: ok.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Url'
+ * A DeleteUrlSchema type
+ * @typedef {object} DeleteUrlSchema
+ * @property {number} id.required - The user Id
  */
 
 /**
- * @swagger
- * /api/urls:
- *   post:
- *     summary: Create short url
- *     tags:
- *      - urls
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               originalUrl:
- *                 type: string
- *               shortUrl:
- *                 type: string
- *               userId:
- *                 type: integer
- *     responses:
- *       201:
- *         description: short url created.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Url'
+ * GET /api/urls
+ * @summary List of urls
+ * @tags urls - Manage urls
+ * @return {array<UrlSchema>} 200 - success response - application/json
  */
 
 /**
- * @swagger
- * /api/urls/{id}:
- *   delete:
- *     summary: Delete url by short name
- *     tags:
- *      - urls
- *     parameters:
- *       - in: path
- *         name: shortUrl
- *         required: true
- *         description: short url name to be deleted.
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: deleted
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
+ * GET /api/urls/{shortUrl}
+ * @summary Get url by shortUrl
+ * @tags urls
+ * @param {string} shortUrl.path.required
+ * @return {UrlSchema} 200 - success response - application/json
  */
+
+/**
+ * PUT /api/urls/{shortUrl}
+ * @summary Update url
+ * @tags urls
+ * @param {string} id.path.required - id of url to be updated
+ * @param {UpdateUrlSchema} request.body.required - User info
+ * @return {UrlSchema} 200 - success response - application/json
+ */
+
+/**
+   * POST /api/urls
+   * @summary Create urls
+   * @tags urls
+   * @param {CreateUrlSchema} request.body.required - User info
+   * @return {UrlSchema} 200 - User response
+   */
+
+/**
+   * DELETE /api/urls/{shortUrl}
+   * @summary Delete url
+   * @tags urls
+   * @param {string} urlId.path.required
+   * @return {string} 200 - user deleted
+   */
 
 router
   .route("/")
@@ -166,9 +86,10 @@ router
       query("page").optional().isInt(),
       query("perPage").optional().isInt(),
       query("searchUrl").optional().isString(),
+      body("userId").optional().isNumeric(),
     ],
     validate,
-    fetchUrls
+    searchUrls
   )
   .post(
     [

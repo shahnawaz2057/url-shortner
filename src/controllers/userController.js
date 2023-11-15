@@ -1,7 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const { Op } = require("sequelize");
 
-const { UsersModel, UrlsModel } = require("../models");
+const { User } = require("../models");
 const BadRequest = require("../errors/badRequestError");
 const NotFoundError = require("../errors/notFoundError");
 
@@ -9,12 +9,12 @@ const createUser = async (req, res, next) => {
   try {
     const { employeeId, name, designation } = req.body;
 
-    let userExist = await UsersModel.findOne({ where: { employeeId } });
+    let userExist = await User.findOne({ where: { employeeId } });
     if (userExist) {
       throw new BadRequest("user with the same employeeId already exist!");
     }
 
-    const user = await UsersModel.create({ employeeId, name, designation });
+    const user = await User.create({ employeeId, name, designation });
     res.status(StatusCodes.CREATED).json({
       message: "user created successfully!",
       data: user,
@@ -27,7 +27,7 @@ const createUser = async (req, res, next) => {
 const fetchUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const user = await UsersModel.findOne({ where: { id: parseInt(id) } });
+    const user = await User.findOne({ where: { id: parseInt(id) } });
     if (!user) {
       throw new NotFoundError("user not found!");
     }
@@ -60,7 +60,7 @@ const fetchUsers = async (req, res, next) => {
       ],
     };
 
-    const { count, rows } = await UsersModel.findAndCountAll({
+    const { count, rows } = await User.findAndCountAll({
       where,
       include: ["urls"],
       limit: currentLimit,
@@ -82,7 +82,7 @@ const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { isAdmin, isActive } = req.body;
-    const user = await UsersModel.findOne({ where: { id: parseInt(id) } });
+    const user = await User.findOne({ where: { id: parseInt(id) } });
 
     if (!user) {
       throw new NotFoundError("user not found!");
