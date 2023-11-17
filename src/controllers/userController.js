@@ -1,25 +1,45 @@
 const { StatusCodes } = require("http-status-codes");
 const { Op } = require("sequelize");
 
-const { UsersModel, UrlsModel } = require("../models");
+const { UsersModel, UrlsModel, AuditsModel, sequelize } = require("../models");
 const BadRequest = require("../errors/badRequestError");
 const NotFoundError = require("../errors/notFoundError");
 
 const createUser = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
     const { employeeId, name, designation } = req.body;
 
-    let userExist = await UsersModel.findOne({ where: { employeeId } });
+    let userExist = await UsersModel.findOne({
+      where: { employeeId },
+      transaction: t,
+    });
     if (userExist) {
       throw new BadRequest("user with the same employeeId already exist!");
     }
 
-    const user = await UsersModel.create({ employeeId, name, designation });
+    const user = await UsersModel.create(
+      { employeeId, name, designation },
+      { transaction: t }
+    );
+
+    await AuditsModel.create(
+      {
+        action: "CREATE",
+        tableName: "users",
+        recordId: user.id,
+        userId: 1, // Who can create? Super admin? hard code for now.
+        timestamp: new Date(),
+      },
+      { transaction: t }
+    );
+    t.commit();
     res.status(StatusCodes.CREATED).json({
       message: "user created successfully!",
       data: user,
     });
   } catch (error) {
+    t.rollback();
     next(error);
   }
 };
@@ -79,10 +99,14 @@ const fetchUsers = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
     const { id } = req.params;
     const { isAdmin, isActive } = req.body;
-    const user = await UsersModel.findOne({ where: { id: parseInt(id) } });
+    const user = await UsersModel.findOne({
+      where: { id: parseInt(id) },
+      transaction: t,
+    });
 
     if (!user) {
       throw new NotFoundError("user not found!");
@@ -95,13 +119,26 @@ const updateUser = async (req, res, next) => {
       user.isActive = isActive;
     }
 
-    await user.save();
+    await user.save({ transaction: t });
+
+    await AuditsModel.create(
+      {
+        action: "UPDATE",
+        tableName: "users",
+        recordId: user.id,
+        userId: 1, // Who can create? Super admin? hard code for now.
+        timestamp: new Date(),
+      },
+      { transaction: t }
+    );
+    t.commit();
 
     res.status(StatusCodes.OK).json({
       message: "user updated successfully!",
       data: user,
     });
   } catch (error) {
+    t.rollback();
     next(error);
   }
 };

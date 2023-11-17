@@ -7,6 +7,7 @@ const errorHandler = require("./middlewares/errorHandlerMiddleware");
 const userRouter = require("./routes/userRoute");
 const urlRouter = require("./routes/urlRoute");
 const redirectRouter = require("./routes/redirectRoute");
+const statsRouter = require("./routes/statsRoute");
 const swaggerSpec = require("./swagger/swagger");
 const swaggerUi = require("swagger-ui-express");
 const NotFoundError = require("./errors/notFoundError");
@@ -33,6 +34,7 @@ app.get("/docs.json", (req, res) => {
 
 app.use("/api/users", userRouter);
 app.use("/api/urls", urlRouter);
+app.use("/api/stats", statsRouter);
 app.use("/", redirectRouter);
 
 app.all("*", async () => {

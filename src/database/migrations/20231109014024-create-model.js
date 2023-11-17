@@ -86,10 +86,72 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
+
+    /** Create Audits Table  */
+    await queryInterface.createTable("audits", {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
+      action: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      tableName: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      recordId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "users",
+          key: "id",
+        },
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+      },
+    });
+
+    /** Create Links Tracker Table  */
+    await queryInterface.createTable("linksTracker", {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
+      urlId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "urls",
+          key: "id",
+        },
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+      },
+    });
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("urls");
+    await queryInterface.dropTable("audits");
     await queryInterface.dropTable("users");
+    await queryInterface.dropTable("linksTracker");
   },
 };
