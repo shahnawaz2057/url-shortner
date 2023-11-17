@@ -8,9 +8,9 @@ const userRouter = require("./routes/userRoute");
 const urlRouter = require("./routes/urlRoute");
 const redirectRouter = require("./routes/redirectRoute");
 const taskRouter = require("./routes/taskRoute");
-const swaggerDocs = require('./swagger/swagger');
+const statsRouter = require("./routes/statsRoute");
+const swaggerDocs = require("./swagger/swagger");
 const NotFoundError = require("./errors/notFoundError");
-
 
 const app = express();
 
@@ -28,6 +28,7 @@ swaggerDocs(app);
 app.use("/api/users", userRouter);
 app.use("/api/urls", urlRouter);
 app.use("/api/tasks", taskRouter);
+app.use("/api/stats", statsRouter);
 app.use("/", redirectRouter);
 
 app.all("*", async () => {

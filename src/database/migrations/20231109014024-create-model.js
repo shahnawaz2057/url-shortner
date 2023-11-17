@@ -86,10 +86,29 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
+
+    /** Create Links Tracker Table  */
+    await queryInterface.createTable("linksTracker", {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
+      urlId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      visitedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+    });
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("urls");
     await queryInterface.dropTable("users");
+    await queryInterface.dropTable("linksTracker");
   },
 };
