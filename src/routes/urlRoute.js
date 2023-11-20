@@ -5,7 +5,7 @@ const {
   createShortUrl,
   modifyShortUrl,
   deleteShortUrl,
-  searchUrls
+  searchUrls,
 } = require("../controllers/urlController");
 const validate = require("../middlewares/validateMiddleware");
 
@@ -64,38 +64,59 @@ const router = express.Router();
  */
 
 /**
-   * POST /api/urls
-   * @summary Create urls
-   * @tags urls
-   * @param {CreateUrlSchema} request.body.required - User info
-   * @return {UrlSchema} 200 - User response
-   */
+ * POST /api/urls
+ * @summary Create urls
+ * @tags urls
+ * @param {CreateUrlSchema} request.body.required - User info
+ * @return {UrlSchema} 200 - User response
+ */
 
 /**
-   * DELETE /api/urls/{shortUrl}
-   * @summary Delete url
-   * @tags urls
-   * @param {string} urlId.path.required
-   * @return {string} 200 - user deleted
-   */
+ * DELETE /api/urls/{shortUrl}
+ * @summary Delete url
+ * @tags urls
+ * @param {string} urlId.path.required
+ * @return {string} 200 - user deleted
+ */
 
 router
   .route("/")
   .get(
     [
-      query("page").optional().isInt(),
-      query("perPage").optional().isInt(),
-      query("searchUrl").optional().isString(),
-      body("userId").optional().isNumeric(),
+      query("page").optional().isInt().withMessage("page must be a number"),
+      query("perPage")
+        .optional()
+        .isInt()
+        .withMessage("perPage must be a number"),
+      query("searchUrl")
+        .optional()
+        .isString()
+        .withMessage("searchUrl must be a string"),
+      body("userId")
+        .optional()
+        .isNumeric()
+        .withMessage("userId must be a numeric"),
     ],
     validate,
     searchUrls
   )
   .post(
     [
-      body("originalUrl").notEmpty().isURL(),
-      body("shortUrl").notEmpty().isString(),
-      body("userId").notEmpty().isNumeric(),
+      body("originalUrl")
+        .notEmpty()
+        .withMessage("originalUrl must not be empty")
+        .isURL()
+        .withMessage("originalUrl must be a valid url"),
+      body("shortUrl")
+        .notEmpty()
+        .withMessage("shortUrl must not be empty")
+        .isString()
+        .withMessage("shortUrl must be a string"),
+      body("userId")
+        .notEmpty()
+        .withMessage("userId must not be empty")
+        .isNumeric()
+        .withMessage("userId must be a numeric"),
     ],
     validate,
     createShortUrl
@@ -105,13 +126,24 @@ router
   .route("/:id")
   .put(
     [
-      param("id").isInt(),
-      body("userId").notEmpty().isNumeric(),
-      body("shortUrl").optional().isString(),
+      param("id").isInt().withMessage("id must be a number"),
+      body("userId")
+        .notEmpty()
+        .withMessage("userId must not be empty")
+        .isNumeric()
+        .withMessage("userId must be a numeric"),
+      body("shortUrl")
+        .optional()
+        .isString()
+        .withMessage("shortUrl must be a string"),
     ],
     validate,
     modifyShortUrl
   )
-  .delete([param("id").isInt().toInt()], validate, deleteShortUrl);
+  .delete(
+    [param("id").isInt().toInt().withMessage("id must be a number")],
+    validate,
+    deleteShortUrl
+  );
 
 module.exports = router;
