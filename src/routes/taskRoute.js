@@ -1,19 +1,30 @@
 const express = require('express');
 const { body, param } = require("express-validator");
 const validate = require("../middlewares/validateMiddleware");
-const { createTask, fetchTasks, updateTask, deleteTask, checkMaintenanceStatus } = require('../controllers/taskController');
+const { 
+  createTask, 
+  fetchTasks, 
+  updateTask, 
+  deleteTask, 
+  checkMaintenanceStatus 
+} = require('../controllers/taskController');
+
+const { authenticateUser } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
+router.use(authenticateUser);
+
+// router.route('/checkMaintenanceStatus')
+// .get([
+//   body("startDate").notEmpty().isString(),
+//   body("endDate").notEmpty().isString(),
+// ],
+// validate,
+// checkMaintenanceStatus
+// );
 
 router.route('/checkMaintenanceStatus')
-.get([
-  body("startDate").notEmpty().isString(),
-  body("endDate").notEmpty().isString(),
-  body("startTime").notEmpty().isString(),
-],
-validate,
-checkMaintenanceStatus
-);
+.get(checkMaintenanceStatus)
 
 router.route('/')
 .get(fetchTasks)
@@ -22,9 +33,7 @@ router.route('/')
   body("reason").notEmpty().isString(),
   body("chgNumber").notEmpty().isString(),
   body("startDate").notEmpty().isString(),
-  body("endDate").notEmpty().isString(),
-  body("startTime").notEmpty().isString(),
-  body("endTime").notEmpty().isString(),
+  body("endDate").notEmpty().isString()
 ],
 validate,
 createTask
@@ -36,10 +45,8 @@ router.route('/:id')
   body("title").notEmpty().isString(),
   body("reason").notEmpty().isString(),
   body("chgNumber").notEmpty().isString(),
-  body("startDate").notEmpty().isString(),
-  body("endDate").notEmpty().isString(),
-  body("startTime").notEmpty().isString(),
-  body("endTime").notEmpty().isString(),
+  body("startDate").notEmpty().isString().toDate(),
+  body("endDate").notEmpty().isString().toDate(),
 ],
 validate,
 updateTask)

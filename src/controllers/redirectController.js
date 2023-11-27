@@ -1,11 +1,11 @@
-const { UrlsModel } = require("../models");
+const { Urls, Audit } = require("../models");
 const NotFoundError = require("../errors/notFoundError");
 
 const redirectToOriginalUrl = async (req, res, next) => {
   try {
     const { shortUrl } = req.params;
-    const url = await UrlsModel.findOne({
-      where: { shortUrl },
+    const url = await Urls.findOne({
+      where: { shortUrl, isDeleted: false },
     });
     if (!url) {
       throw new NotFoundError("no url found!");
@@ -16,6 +16,12 @@ const redirectToOriginalUrl = async (req, res, next) => {
       where: {
         shortUrl,
       },
+    });
+
+    await Audit.create({
+      urlId: url.id,
+      userId: url.userId,
+      visitedAt: new Date()
     });
 
     return res.redirect(url.originalUrl);

@@ -8,6 +8,8 @@ const {
   updateUser,
 } = require("../controllers/userController");
 const validate = require("../middlewares/validateMiddleware");
+const { authenticateUser } = require('../middlewares/authMiddleware');
+
 
 const router = express.Router();
 
@@ -65,6 +67,8 @@ const router = express.Router();
    * @param {number} id.path.required
    * @return {string} 200 - user deleted
    */
+
+router.use(authenticateUser);
 
 router
   .route("/")

@@ -8,6 +8,7 @@ const {
   searchUrls
 } = require("../controllers/urlController");
 const validate = require("../middlewares/validateMiddleware");
+const { authenticateUser } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -79,6 +80,8 @@ const router = express.Router();
    * @return {string} 200 - user deleted
    */
 
+router.use(authenticateUser);
+
 router
   .route("/")
   .get(
@@ -95,7 +98,7 @@ router
     [
       body("originalUrl").notEmpty().isURL(),
       body("shortUrl").notEmpty().isString(),
-      body("userId").notEmpty().isNumeric(),
+      body('tags').optional().isArray(),
     ],
     validate,
     createShortUrl
@@ -108,6 +111,7 @@ router
       param("id").isInt(),
       body("userId").notEmpty().isNumeric(),
       body("shortUrl").optional().isString(),
+      body('tags').optional().isArray()
     ],
     validate,
     modifyShortUrl

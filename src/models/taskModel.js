@@ -34,24 +34,12 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: { msg: 'change number must not be empty' },
       },
     },
-    timezone: {
-      type: DataTypes.STRING,
-      defaultValue: 'singapore'
-    },
     startDate: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: false
     },
     endDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: false
-    },
-    startTime: {
-      type: DataTypes.TIME,
-      allowNull: false
-    },
-    endTime: {
-      type: DataTypes.TIME,
+      type: DataTypes.DATE,
       allowNull: false
     }
   }, 

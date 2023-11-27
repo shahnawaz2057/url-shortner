@@ -4,20 +4,20 @@ const NotFoundError = require('../errors/notFoundError');
 const BadRequest = require('../errors/badRequestError');
 
 const createTask = async ( req, res, next) => {
-  const { title, reason, chgNumber, timezone, startDate, endDate, startTime, endTime } = req.body;
+  const { title, reason, chgNumber, startDate, endDate } = req.body;
 
   try {
     const where = {
       startDate: { [Op.lte]: endDate },
       endDate: { [Op.gte]: startDate},
-      startTime: { [Op.eq]: startTime},
-      endTime: { [Op.eq]: endTime}
+      // startTime: { [Op.eq]: startTime},
+      // endTime: { [Op.eq]: endTime}
     }
     const existingTask = await Task.findOne({ where });
     if(existingTask) {
       return res.status(400).json({message: "maintenance task already exist for this period"});
     }
-    const task = await Task.create({title, reason, chgNumber, timezone, startDate, endDate, startTime, endTime});
+    const task = await Task.create({title, reason, chgNumber, startDate, endDate});
     return res.status(201).json({message: 'task created successfully', task});
   } catch (error) {
     next(error);
@@ -25,13 +25,18 @@ const createTask = async ( req, res, next) => {
 }
 
 const checkMaintenanceStatus = async (req, res, next) => {
-  const { startDate, endDate, startTime} = req.body;
+  // const { startDate, endDate} = req.body;
+
+  const startDate = new Date();
+  const endDate = startDate;
+  console.log('start date', startDate);
+  console.log('end date', endDate);
   try {
     const where = {
       startDate: { [Op.lte]: endDate },
       endDate: { [Op.gte]: startDate},
-      startTime: { [Op.lte]: startTime},
-      endTime: { [Op.gte]: startTime}
+      // startTime: { [Op.lte]: startTime},
+      // endTime: { [Op.gte]: startTime}
     };
     const task = await Task.findOne({ where });
     if(task){
@@ -58,29 +63,26 @@ const updateTask = async (req, res) => {
     throw new NotFoundError('No schedule task found');
   }
 
-  const { title, reason, chgNumber, timezone, startDate, endDate, startTime, endTime } = req.body;
+  const { title, reason, chgNumber, startDate, endDate } = req.body;
 
   if((task.title != title || task.reason != reason || task.chgNumber != chgNumber) && 
-      task.startDate == startDate && task.endDate == endDate){
-    const updatedTask = await task.update({ title, reason, chgNumber, timezone, startDate, endDate, startTime, endTime });
+      task.startDate.getTime() === startDate.getTime() && task.endDate.getTime() === endDate.getTime()){
+    const updatedTask = await task.update({ title, reason, chgNumber, startDate, endDate });
     return res.status(200).json({task: updatedTask})
   }
 
   const where = {
     startDate: { [Op.lte]: endDate },
     endDate: { [Op.gte]: startDate},
-    // startTime: { [Op.eq]: startTime},
-    // endTime: { [Op.eq]: endTime},
-    // id: parseInt(id)
   }
   
   const existingTask = await Task.findOne({ where });
   if(existingTask) {
-    console.log('existingTask', existingTask.toJSON());
+    // console.log('existingTask', existingTask.toJSON());
     throw new BadRequest('maintenance task already exist for this period');
   }
 
-  const updatedTask = await task.update({ title, reason, chgNumber, timezone, startDate, endDate, startTime, endTime })
+  const updatedTask = await task.update({ title, reason, chgNumber, startDate, endDate })
 
   return res.status(200).json({task: updatedTask})
 
