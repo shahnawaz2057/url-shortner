@@ -88,7 +88,14 @@ const searchUrls = async (req, res, next) => {
     }
     const { count, rows } = await Urls.findAndCountAll({
       where,
-      // include: "creator",
+      include: {
+        model: Tags,
+        as: 'tags',
+        attributes: ['name'],
+        through: {
+          attributes: []
+        },
+      },
       limit: currentLimit,
       offset: offset,
     });

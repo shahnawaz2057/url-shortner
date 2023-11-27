@@ -18,8 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsToMany(Tags, { 
         through: 'urls_tags', 
         as: 'tags',
-        // foreignKey: 'tagId',
-        timestamps: false 
+        foreignKey: {name: 'urlId', allowNull: false}, 
       });
     }
   }
@@ -41,10 +40,6 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "shortUrl must not be empty" },
         },
       },
-      linksVisited: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-      },
       isDeleted: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -53,6 +48,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE
+      }
     },
     {
       sequelize,

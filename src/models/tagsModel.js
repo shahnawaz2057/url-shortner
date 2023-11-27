@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsToMany(Urls, { 
         through: 'urls_tags',
-        // foreignKey: 'urlId', 
-        timestamps: false });
+        foreignKey: {name: 'tagId', allowNull: false}, 
+       });
     }
   }
   Tags.init({
@@ -20,7 +20,15 @@ module.exports = (sequelize, DataTypes) => {
       validate:{
         notNull: {msg: 'tags name must not be null'}
       }
-    }
+    },
+    // createdAt: {
+    //   allowNull: false,
+    //   type: DataTypes.DATE
+    // },
+    // updatedAt: {
+    //   allowNull: true,
+    //   type: DataTypes.DATE
+    // }
   },
   {
     sequelize,

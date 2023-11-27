@@ -2,7 +2,8 @@ const app = require("./app");
 const { sequelize } = require("./models");
 
 const start = async () => {
-  await sequelize.sync({ alter: true });
+  // await sequelize.sync({ alter: true });
+  await sequelize.authenticate();
   app.listen(8080, () => {
     console.log("app listening in port 8080");
   });
